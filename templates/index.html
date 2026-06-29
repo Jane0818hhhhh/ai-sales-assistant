@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}AI销售获客系统 - 首页{% endblock %}
+
+{% block content %}
+<!-- Hero区域 -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">AI销售助理</h1>
+                <p class="lead mb-4">帮助个人销售和小团队提升获客效率、触达质量和转化管理能力</p>
+                <div class="d-flex gap-3">
+                    <a href="/customer-research" class="btn btn-light btn-lg">开始使用</a>
+                    <a href="/about" class="btn btn-outline-light btn-lg">了解更多</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-robot" style="font-size: 200px; opacity: 0.2;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 功能模块 -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">核心功能</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <h5 class="card-title">客户背景速查</h5>
+                        <p class="card-text">输入客户公司/人名，自动汇总公开信息、近期动态、决策链推测</p>
+                        <a href="/customer-research" class="btn btn-primary">立即使用</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <h5 class="card-title">触达内容生成</h5>
+                        <p class="card-text">基于客户背景自动生成破冰微信、跟进邮件、电话开场白</p>
+                        <a href="/outreach" class="btn btn-primary">立即使用</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-lightbulb"></i>
+                        </div>
+                        <h5 class="card-title">异议处理教练</h5>
+                        <p class="card-text">输入客户异议，获取应对策略、话术建议、类似案例</p>
+                        <a href="/objection" class="btn btn-primary">立即使用</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-calendar-check"></i>
+                        </div>
+                        <h5 class="card-title">跟进节奏管理</h5>
+                        <p class="card-text">输入客户状态和上次跟进时间，自动生成下一步跟进计划</p>
+                        <a href="/followup" class="btn btn-primary">立即使用</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h5 class="card-title">销售过程复盘</h5>
+                        <p class="card-text">粘贴通话记录，自动分析客户意向、成交概率、遗漏点</p>
+                        <a href="/review" class="btn btn-primary">立即使用</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card feature-card">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                        <h5 class="card-title">关于系统</h5>
+                        <p class="card-text">了解系统设计理念、技术架构和使用说明</p>
+                        <a href="/about" class="btn btn-primary">查看详情</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 使用场景 -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <h2 class="text-center mb-5">适用场景</h2>
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h4>B2B销售</h4>
+                <p>帮助企业销售人员快速了解目标客户，生成个性化触达内容，提高转化率</p>
+                
+                <h4 class="mt-4">招聘获客</h4>
+                <p>帮助招聘人员分析候选人背景，生成个性化沟通话术</p>
+                
+                <h4 class="mt-4">课程销售</h4>
+                <p>帮助教育机构销售人员分析学员需求，生成针对性课程推荐话术</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">WorkBuddy能力体现</h5>
+                        <ul class="list-unstyled">
+                            <li>✅ 信息抓取与聚合</li>
+                            <li>✅ 自然语言生成</li>
+                            <li>✅ 对话分析与理解</li>
+                            <li>✅ 结构化输出</li>
+                            <li>✅ 知识库与案例匹配</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

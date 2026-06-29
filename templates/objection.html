@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}异议处理教练 - AI销售获客系统{% endblock %}
+
+{% block content %}
+<section class="module-header">
+    <div class="container">
+        <h1 class="display-5 fw-bold">异议处理教练</h1>
+        <p class="lead">输入客户异议，获取应对策略和建议话术</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">常见异议</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary text-start" onclick="selectObjection('太贵了')">
+                            <i class="bi bi-currency-dollar"></i> 太贵了
+                        </button>
+                        <button class="btn btn-outline-primary text-start" onclick="selectObjection('我们需要考虑考虑')">
+                            <i class="bi bi-hourglass"></i> 我们需要考虑考虑
+                        </button>
+                        <button class="btn btn-outline-primary text-start" onclick="selectObjection('已经有供应商了')">
+                            <i class="bi bi-building"></i> 已经有供应商了
+                        </button>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">自定义异议</label>
+                        <textarea class="form-control" id="customObjection" rows="3" placeholder="输入客户提出的异议..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">上下文（可选）</label>
+                        <input type="text" class="form-control" id="context" placeholder="例如：产品演示后">
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="handleObjection()">
+                        <i class="bi bi-lightbulb"></i> 获取建议
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div id="loading" style="display: none;" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">加载中...</span>
+                </div>
+                <p class="mt-3">正在分析异议...</p>
+            </div>
+            
+            <div id="result" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">异议类型：<span id="objectionType" class="badge bg-primary"></span></h5>
+                        <h6 class="mt-3">应对策略</h6>
+                        <p id="strategy" class="card-text"></p>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">应对框架</h5>
+                        <ol id="framework" class="list-group list-group-numbered"></ol>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">建议话术</h5>
+                        <div class="p-3 bg-light" style="border-radius: 5px;">
+                            <p id="suggestedScript" class="mb-0"></p>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm mt-2" onclick="copyScript()">
+                            <i class="bi bi-clipboard"></i> 复制话术
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">类似案例</h5>
+                        <p id="similarCases" class="card-text"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="emptyState" class="text-center py-5">
+                <i class="bi bi-lightbulb" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="mt-3 text-muted">选择或输入客户异议</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectObjection(objection) {
+        document.getElementById('customObjection').value = objection;
+    }
+    
+    function handleObjection() {
+        const objection = document.getElementById('customObjection').value.trim();
+        const context = document.getElementById('context').value.trim();
+        
+        if (!objection) {
+            alert('请输入客户异议');
+            return;
+        }
+        
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'none';
+        
+        fetch('/api/objection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                objection: objection,
+                context: context
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading').style.display = 'none';
+            
+            if (data.success) {
+                displayResult(data.data);
+            } else {
+                alert('处理失败：' + (data.error || '未知错误'));
+            }
+        })
+        .catch(error => {
+            document.getElementById('loading').style.display = 'none';
+            alert('处理失败：' + error);
+        });
+    }
+    
+    function displayResult(data) {
+        document.getElementById('objectionType').textContent = data.type;
+        document.getElementById('strategy').textContent = data.strategy;
+        document.getElementById('suggestedScript').textContent = data.suggested_script;
+        document.getElementById('similarCases').textContent = data.similar_cases;
+        
+        const frameworkList = document.getElementById('framework');
+        frameworkList.innerHTML = '';
+        data.response_framework.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item';
+            li.textContent = item;
+            frameworkList.appendChild(li);
+        });
+        
+        document.getElementById('result').style.display = 'block';
+    }
+    
+    function copyScript() {
+        const script = document.getElementById('suggestedScript').textContent;
+        navigator.clipboard.writeText(script).then(() => {
+            alert('话术已复制到剪贴板');
+        });
+    }
+</script>
+{% endblock %}

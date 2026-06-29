@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}触达内容生成 - AI销售获客系统{% endblock %}
+
+{% block content %}
+<section class="module-header">
+    <div class="container">
+        <h1 class="display-5 fw-bold">触达内容生成</h1>
+        <p class="lead">基于客户背景，自动生成个性化触达内容</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">生成触达内容</h5>
+                    <div class="mb-3">
+                        <label class="form-label">客户信息</label>
+                        <textarea class="form-control" id="customerInfo" rows="3" placeholder="例如：张总，腾讯科技HR总监"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">产品/服务</label>
+                        <input type="text" class="form-control" id="product" placeholder="例如：AI招聘系统">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">触达方式</label>
+                        <select class="form-select" id="scenario">
+                            <option value="wechat">微信</option>
+                            <option value="email">邮件</option>
+                            <option value="phone">电话</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary w-100" onclick="generateOutreach()">
+                        <i class="bi bi-chat-dots"></i> 生成内容
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div id="loading" style="display: none;" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">加载中...</span>
+                </div>
+                <p class="mt-3">正在生成触达内容...</p>
+            </div>
+            
+            <div id="result" style="display: none;">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">生成结果</h5>
+                        <div id="subjectArea" class="mb-3" style="display: none;">
+                            <label class="form-label fw-bold">主题</label>
+                            <p id="subjectText" class="form-control-plaintext"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">内容</label>
+                            <pre id="contentText" class="p-3 bg-light" style="white-space: pre-wrap; border-radius: 5px;"></pre>
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" onclick="copyContent()">
+                            <i class="bi bi-clipboard"></i> 复制内容
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="tips-box">
+                    <h6><i class="bi bi-lightbulb"></i> 使用提示</h6>
+                    <p id="tipsText" class="mb-0"></p>
+                </div>
+            </div>
+            
+            <div id="emptyState" class="text-center py-5">
+                <i class="bi bi-chat-dots" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="mt-3 text-muted">填写信息生成触达内容</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function generateOutreach() {
+        const customerInfo = document.getElementById('customerInfo').value.trim();
+        const product = document.getElementById('product').value.trim();
+        const scenario = document.getElementById('scenario').value;
+        
+        if (!customerInfo || !product) {
+            alert('请填写客户信息和产品/服务');
+            return;
+        }
+        
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'none';
+        
+        fetch('/api/outreach', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                customer_info: customerInfo,
+                product: product,
+                scenario: scenario
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading').style.display = 'none';
+            
+            if (data.success) {
+                displayResult(data.data, scenario);
+            } else {
+                alert('生成失败：' + (data.error || '未知错误'));
+            }
+        })
+        .catch(error => {
+            document.getElementById('loading').style.display = 'none';
+            alert('生成失败：' + error);
+        });
+    }
+    
+    function displayResult(data, scenario) {
+        if (scenario === 'email') {
+            document.getElementById('subjectArea').style.display = 'block';
+            document.getElementById('subjectText').textContent = data.subject;
+        } else {
+            document.getElementById('subjectArea').style.display = 'none';
+        }
+        
+        document.getElementById('contentText').textContent = data.content;
+        document.getElementById('tipsText').textContent = data.tips;
+        
+        document.getElementById('result').style.display = 'block';
+    }
+    
+    function copyContent() {
+        const content = document.getElementById('contentText').textContent;
+        navigator.clipboard.writeText(content).then(() => {
+            alert('内容已复制到剪贴板');
+        });
+    }
+</script>
+{% endblock %}
