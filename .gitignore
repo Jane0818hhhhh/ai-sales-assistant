@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+kb.db
+uploads/
+*.log
+app_backup.py
+app_fixed.py
+run_simple.py
+start.py
+.DS_Store
