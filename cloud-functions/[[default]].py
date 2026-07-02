@@ -29,6 +29,39 @@ app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB
 ALLOWED_EXT = {'txt', 'md', 'pdf', 'docx', 'doc', 'csv', 'json', 'log'}
 
 
+# ============ 诊断接口（排查部署问题用，稳定后可删） ============
+@app.route('/api/debug/status')
+def api_debug_status():
+    """一眼看出：LLM 是否连上、素材库存储层是否可写、环境变量是否齐全"""
+    import sys
+    env_keys = ['LLM_PROVIDER', 'OPENAI_API_KEY', 'AZURE_OPENAI_ENDPOINT',
+                'AZURE_OPENAI_API_VERSION', 'AZURE_OPENAI_DEPLOYMENT', 'LLM_MODEL']
+    env_status = {}
+    for k in env_keys:
+        v = os.environ.get(k, '')
+        env_status[k] = f'已设置（{len(v)}字符）' if v else '未设置'
+    return jsonify({
+        'python_version': sys.version,
+        'llm_is_real': llm_client.is_real_llm(),
+        'llm_model': llm_client.MODEL,
+        'env_vars': env_status,
+        'kb_status': kb.get_status(),
+    })
+
+
+@app.errorhandler(Exception)
+def handle_any_error(e):
+    """把真实报错堆栈直接返回，方便排查（Demo/排障阶段用，不涉及敏感数据）"""
+    import traceback
+    tb = traceback.format_exc()
+    return jsonify({
+        'success': False,
+        'error': str(e),
+        'error_type': type(e).__name__,
+        'traceback': tb,
+    }), 500
+
+
 # ============ Mock 兜底数据 ============
 def mock_research(company):
     return json.dumps({
