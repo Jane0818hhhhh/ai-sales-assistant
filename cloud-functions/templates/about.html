@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}关于 · 北极星·炼术师{% endblock %}
+{% block content %}
+<div class="module-header">
+    <div class="container">
+        <h2>关于 AI 销售助理</h2>
+        <p class="mb-0 opacity-75">北极星·炼术师 · 腾讯 AI 黑客松 · 方向三【营销】</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h4>🎯 我们解决什么问题</h4>
+                    <p>销售人员 80% 的时间被非成交动作吞噬 —— 查客户资料、憋话术、想跟进策略、写复盘。AI 销售助理把这些"重复劳动"压缩到分钟级，让销售专注于真正推动决策的关系与沟通。</p>
+
+                    <h4 class="mt-4">🧭 五大模块，一站式贯穿销售全流程</h4>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6"><div class="border rounded p-3"><strong>1. 客户背景速查</strong><br><small class="text-muted">融资、决策链、痛点，AI + 私有素材库双引擎</small></div></div>
+                        <div class="col-md-6"><div class="border rounded p-3"><strong>2. 触达内容生成</strong><br><small class="text-muted">4 渠道、4 语气，一键出稿</small></div></div>
+                        <div class="col-md-6"><div class="border rounded p-3"><strong>3. 异议处理教练</strong><br><small class="text-muted">4 步框架 + 逐字话术</small></div></div>
+                        <div class="col-md-6"><div class="border rounded p-3"><strong>4. 跟进节奏管理</strong><br><small class="text-muted">阶段化建议 + 客户库联动</small></div></div>
+                        <div class="col-md-6"><div class="border rounded p-3"><strong>5. 销售过程复盘</strong><br><small class="text-muted">对话拆解，识别错失机会</small></div></div>
+                        <div class="col-md-6"><div class="border rounded p-3"><strong>+ 私有素材库</strong><br><small class="text-muted">BM25 检索，AI 调研时自动引用</small></div></div>
+                    </div>
+
+                    <h4 class="mt-4">🛠️ 技术架构</h4>
+                    <ul>
+                        <li><strong>后端</strong>：Python 3.11 + Flask + SQLite</li>
+                        <li><strong>AI</strong>：OpenAI GPT-4o（可切换 Mock 模式）</li>
+                        <li><strong>检索</strong>：纯 Python BM25 实现（含中英文分词）</li>
+                        <li><strong>文档解析</strong>：pdftotext / python-docx</li>
+                        <li><strong>前端</strong>：Bootstrap 5 + 原生 JS</li>
+                        <li><strong>部署</strong>：WorkBuddy 沙箱 + 工蜂 CI/CD</li>
+                    </ul>
+
+                    <h4 class="mt-4">💡 差异化亮点</h4>
+                    <ol>
+                        <li><strong>私有知识增强</strong>：AI 调研时会自动检索你上传的销售话术、案例、竞品分析，输出结果比通用 AI 更贴合业务</li>
+                        <li><strong>阶段感知</strong>：跟进/复盘模块基于客户所处阶段给出差异化建议，不是"一套话术打天下"</li>
+                        <li><strong>可平滑降级</strong>：真实 AI 不可用时自动切 Mock，保证 Demo 稳定</li>
+                        <li><strong>行动可闭环</strong>：从客户库 → 跟进 → 复盘 → 更新阶段，形成销售动作闭环</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    <div style="font-size:5rem; color:#00e5ff; text-shadow:0 0 30px rgba(0,229,255,.5);">✦</div>
+                    <h4 class="mb-1">北极星 · 炼术师</h4>
+                    <p class="text-muted mb-2">Polaris Alchemists</p>
+                    <p class="small">🌟 AI 炼真金 · 专业落地</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">📦 相关资源</div>
+                <div class="card-body">
+                    <p class="small mb-2">📌 <strong>代码仓库</strong></p>
+                    <a href="https://git.woa.com/csc/ai-sales-assistant" target="_blank" class="small">git.woa.com/csc/ai-sales-assistant</a>
+                    <p class="small mb-2 mt-3">📌 <strong>姊妹作品</strong></p>
+                    <a href="https://git.woa.com/csc/ai-content-creator" target="_blank" class="small">AI 内容创作系统（方向二）</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

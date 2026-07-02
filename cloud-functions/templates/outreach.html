@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}触达内容生成{% endblock %}
+{% block content %}
+<div class="module-header">
+    <div class="container">
+        <h2><i class="bi bi-send"></i> 触达内容生成</h2>
+        <p class="mb-0 opacity-75">四种渠道，一键生成有回复率的开场白</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">渠道</label>
+                        <select class="form-select" id="scenario">
+                            <option value="wechat">微信消息</option>
+                            <option value="email">邮件</option>
+                            <option value="phone">电话开场白</option>
+                            <option value="linkedin">LinkedIn 私信</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">目标行业</label>
+                        <input class="form-control" id="industry" placeholder="如：金融科技、SaaS、制造业">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">我方产品/服务</label>
+                        <input class="form-control" id="product" placeholder="如：AI 销售 CRM">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">语气风格</label>
+                        <select class="form-select" id="tone">
+                            <option>专业友好</option><option>亲切轻松</option>
+                            <option>直接有力</option><option>顾问式</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">补充要求（可选）</label>
+                        <textarea class="form-control" id="custom" rows="3" placeholder="如：客户是 CTO，重点讲技术集成能力"></textarea>
+                    </div>
+                    <button class="btn btn-primary w-100" id="btn-go"><i class="bi bi-magic"></i> 生成触达内容</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-text"></i> 生成结果 <span class="source-tag" id="r-source"></span></span>
+                    <button class="btn btn-sm btn-outline-primary" id="btn-copy"><i class="bi bi-clipboard"></i> 复制</button>
+                </div>
+                <div class="card-body">
+                    <pre id="r-content" style="white-space:pre-wrap; font-family: inherit; min-height:300px; padding:15px; background:#f8f9fb; border-radius:6px;">还没生成，先填左侧表单 →</pre>
+                    <div class="tips-box mt-3 small">
+                        <strong>💡 发送建议</strong>
+                        <ul class="mb-0 mt-1 ps-3" id="tip-list">
+                            <li>微信：工作日上午 10-11 点、下午 3-4 点</li>
+                            <li>邮件：周二/周三 上午发送，回复率最高</li>
+                            <li>首次触达 24 小时内不重复打扰</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('btn-go').onclick = async () => {
+    const body = {
+        scenario: document.getElementById('scenario').value,
+        industry: document.getElementById('industry').value,
+        product: document.getElementById('product').value,
+        tone: document.getElementById('tone').value,
+        custom: document.getElementById('custom').value,
+    };
+    const btn = document.getElementById('btn-go');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> 生成中…';
+    try {
+        const r = await fetch('/api/outreach', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)}).then(r => r.json());
+        document.getElementById('r-content').textContent = r.content;
+        const tag = document.getElementById('r-source');
+        tag.className = 'source-tag ' + r.source;
+        tag.textContent = r.source === 'real' ? '真实 AI' : 'Mock';
+    } catch (e) { alert('失败：' + e); }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-magic"></i> 生成触达内容';
+};
+
+document.getElementById('btn-copy').onclick = () => {
+    const t = document.getElementById('r-content').textContent;
+    navigator.clipboard.writeText(t).then(() => alert('已复制'));
+};
+</script>
+{% endblock %}

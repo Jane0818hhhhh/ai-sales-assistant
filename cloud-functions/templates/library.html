@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}素材库 · AI 销售助理{% endblock %}
+{% block content %}
+<div class="module-header">
+    <div class="container">
+        <h2><i class="bi bi-folder"></i> 私有素材库</h2>
+        <p class="mb-0 opacity-75">上传销售话术、成功案例、产品手册、客户对话记录 —— AI 会在调研和复盘时自动检索</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row g-4">
+        <!-- 上传区 -->
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-cloud-upload"></i> 上传素材</div>
+                <div class="card-body">
+                    <form id="upload-form">
+                        <div class="mb-3">
+                            <label class="form-label">选择文件</label>
+                            <input type="file" class="form-control" id="file" required
+                                accept=".txt,.md,.pdf,.docx,.doc,.csv,.json,.log">
+                            <small class="text-muted">支持 txt / md / pdf / docx / csv / json，最大 20 MB</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">分类</label>
+                            <select class="form-select" id="category">
+                                <option>通用</option>
+                                <option>销售话术</option>
+                                <option>成功案例</option>
+                                <option>产品手册</option>
+                                <option>客户对话</option>
+                                <option>竞品分析</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">标签（可选，逗号分隔）</label>
+                            <input type="text" class="form-control" id="tags" placeholder="如：SaaS,金融行业,决策者">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" id="btn-upload">
+                            <i class="bi bi-upload"></i> 上传
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header"><i class="bi bi-search"></i> 检索测试</div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="q" placeholder="输入关键词，如 金融 SaaS 报价">
+                        <button class="btn btn-primary" id="btn-search"><i class="bi bi-search"></i></button>
+                    </div>
+                    <div id="hits" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+        <!-- 列表区 -->
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-list-ul"></i> 素材列表</span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadList()"><i class="bi bi-arrow-clockwise"></i> 刷新</button>
+                </div>
+                <div class="card-body">
+                    <div id="doc-list">加载中…</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadList() {
+    const r = await fetch('/api/library/list').then(r => r.json());
+    const box = document.getElementById('doc-list');
+    if (!r.docs || !r.docs.length) {
+        box.innerHTML = '<p class="text-muted text-center py-4">还没有素材，先上传几份试试 👈</p>';
+        return;
+    }
+    box.innerHTML = '<table class="table table-hover"><thead><tr><th>文件名</th><th>分类</th><th>标签</th><th>大小</th><th></th></tr></thead><tbody>' +
+        r.docs.map(d => `
+            <tr>
+                <td><i class="bi bi-file-earmark-text"></i> ${d.filename}</td>
+                <td><span class="badge bg-secondary">${d.category}</span></td>
+                <td><small class="text-muted">${d.tags || '-'}</small></td>
+                <td><small>${(d.size / 1024).toFixed(1)} KB</small></td>
+                <td><button class="btn btn-sm btn-outline-danger" onclick="del(${d.id})"><i class="bi bi-trash"></i></button></td>
+            </tr>`).join('') + '</tbody></table>';
+}
+
+async function del(id) {
+    if (!confirm('确认删除？')) return;
+    await fetch('/api/library/delete/' + id, {method: 'DELETE'});
+    loadList();
+}
+
+document.getElementById('upload-form').onsubmit = async e => {
+    e.preventDefault();
+    const f = document.getElementById('file').files[0];
+    if (!f) return;
+    const fd = new FormData();
+    fd.append('file', f);
+    fd.append('category', document.getElementById('category').value);
+    fd.append('tags', document.getElementById('tags').value);
+    const btn = document.getElementById('btn-upload');
+    btn.disabled = true; btn.innerHTML = '<span class="loading-spinner"></span> 上传中…';
+    try {
+        const r = await fetch('/api/library/upload', {method: 'POST', body: fd}).then(r => r.json());
+        if (r.success) {
+            alert('上传成功');
+            document.getElementById('upload-form').reset();
+            loadList();
+        } else {
+            alert('失败：' + r.error);
+        }
+    } catch (e) { alert('失败：' + e); }
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-upload"></i> 上传';
+};
+
+document.getElementById('btn-search').onclick = async () => {
+    const q = document.getElementById('q').value.trim();
+    if (!q) return;
+    const r = await fetch('/api/library/search?q=' + encodeURIComponent(q)).then(r => r.json());
+    const box = document.getElementById('hits');
+    if (!r.hits.length) { box.innerHTML = '<small class="text-muted">无匹配结果</small>'; return; }
+    box.innerHTML = r.hits.map(h => `
+        <div class="border rounded p-2 mb-2 small">
+            <div><strong>${h.filename}</strong> <span class="badge bg-info">${h.score}</span></div>
+            <div class="text-muted mt-1">${h.snippet.substring(0, 150)}…</div>
+        </div>`).join('');
+};
+
+loadList();
+</script>
+{% endblock %}

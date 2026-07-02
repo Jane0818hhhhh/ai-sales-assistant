@@ -10,3 +10,4 @@ app_fixed.py
 run_simple.py
 start.py
 .DS_Store
+.git-rewrite/

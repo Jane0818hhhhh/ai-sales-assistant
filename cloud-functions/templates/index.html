@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}AI 销售助理 · 首页{% endblock %}
+{% block content %}
+<section class="hero-section">
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h6 class="text-uppercase mb-2" style="letter-spacing:2px; color:#00e5ff;">Polaris Alchemists · 北极星·炼术师</h6>
+                <h1 class="display-4 fw-bold mb-3">AI 销售助理</h1>
+                <p class="lead mb-4">让每个销售都拥有一位 24 小时在线的 AI 军师<br>
+                    从客户调研、触达、异议处理到跟进复盘 - 一站式贯穿销售全流程</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/customer-research" class="btn btn-accent btn-lg"><i class="bi bi-rocket-takeoff"></i> 立即体验</a>
+                    <a href="/about" class="btn btn-outline-light btn-lg">了解方案</a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center d-none d-lg-block">
+                <div style="font-size:12rem; line-height:1; text-shadow:0 0 40px rgba(0,229,255,.6);">✦</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">五大核心模块</h2>
+        <p class="text-muted">覆盖销售全链路，让 AI 成为你的第二大脑</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <a href="/customer-research" class="text-decoration-none text-dark">
+                <div class="card feature-card p-4">
+                    <div class="feature-icon"><i class="bi bi-search"></i></div>
+                    <h5>客户背景速查</h5>
+                    <p class="text-muted small">3 分钟拿到客户全景画像：融资、决策链、痛点、切入策略</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="/outreach" class="text-decoration-none text-dark">
+                <div class="card feature-card p-4">
+                    <div class="feature-icon"><i class="bi bi-send"></i></div>
+                    <h5>触达内容生成</h5>
+                    <p class="text-muted small">微信/邮件/电话/LinkedIn 四种渠道，一键生成有回复率的开场白</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="/objection" class="text-decoration-none text-dark">
+                <div class="card feature-card p-4">
+                    <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+                    <h5>异议处理教练</h5>
+                    <p class="text-muted small">遇到"太贵了/再考虑一下"？AI 给你 4 步框架 + 逐字话术</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="/followup" class="text-decoration-none text-dark">
+                <div class="card feature-card p-4">
+                    <div class="feature-icon"><i class="bi bi-calendar-check"></i></div>
+                    <h5>跟进节奏管理</h5>
+                    <p class="text-muted small">按客户阶段给出下一步动作、时机、渠道，配套话术直接可用</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="/review" class="text-decoration-none text-dark">
+                <div class="card feature-card p-4">
+                    <div class="feature-icon"><i class="bi bi-clipboard-data"></i></div>
+                    <h5>销售过程复盘</h5>
+                    <p class="text-muted small">丢一段对话记录进去，AI 拆解意向度、错失点、改进项</p>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <a href="/library" class="text-decoration-none text-dark">
+                <div class="card feature-card p-4">
+                    <div class="feature-icon"><i class="bi bi-folder"></i></div>
+                    <h5>私有素材库</h5>
+                    <p class="text-muted small">上传销售话术/案例/产品手册，AI 调研时自动检索复用</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div class="mt-5 p-4 rounded" style="background: linear-gradient(135deg, #f0f9ff, #ede9fe);">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="mb-2">🔥 为什么销售需要 AI 助理？</h5>
+                <p class="mb-0 text-muted">销售 80% 的时间花在了非成交环节 —— 找资料、写话术、想跟进策略。AI 助理帮你把这些"重复劳动"压缩到分钟级，让你专注于建立关系和推进决策。</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="/customer-research" class="btn btn-primary">开始第一次调研 →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

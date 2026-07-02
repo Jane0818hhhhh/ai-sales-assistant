@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}跟进节奏管理{% endblock %}
+{% block content %}
+<div class="module-header">
+    <div class="container">
+        <h2><i class="bi bi-calendar-check"></i> 跟进节奏管理</h2>
+        <p class="mb-0 opacity-75">按客户阶段给出下一步动作、时机、渠道，还有一段可直接说出口的话术</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-body">
+                    <label class="form-label fw-bold">客户当前阶段</label>
+                    <select class="form-select" id="status">
+                        <option>初次接触</option><option>需求确认</option>
+                        <option>方案报价</option><option>决策等待</option><option>已成交</option>
+                    </select>
+                    <label class="form-label fw-bold mt-3">客户信息（可选）</label>
+                    <input class="form-control" id="customer" placeholder="如：张总 · 某某科技 CTO">
+                    <label class="form-label fw-bold mt-3">上次沟通记录（可选）</label>
+                    <textarea class="form-control" id="last_talk" rows="4" placeholder="上次聊了什么、客户反馈、承诺..."></textarea>
+                    <button class="btn btn-primary w-100 mt-3" id="btn-go"><i class="bi bi-arrow-right-circle"></i> 生成跟进计划</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div id="result" class="d-none">
+                <div class="card result-card mb-3">
+                    <div class="card-body">
+                        <h5>📅 当前阶段：<span id="r-stage" class="badge bg-primary"></span> <span class="source-tag" id="r-source"></span></h5>
+
+                        <div class="row g-3 mt-2">
+                            <div class="col-6"><div class="border rounded p-3"><small class="text-muted">下一步动作</small><div class="fw-bold mt-1" id="p-action"></div></div></div>
+                            <div class="col-6"><div class="border rounded p-3"><small class="text-muted">最佳时机</small><div class="fw-bold mt-1" id="p-timing"></div></div></div>
+                            <div class="col-6"><div class="border rounded p-3"><small class="text-muted">推荐渠道</small><div class="fw-bold mt-1" id="p-channel"></div></div></div>
+                            <div class="col-6"><div class="border rounded p-3"><small class="text-muted">阶段目标</small><div class="fw-bold mt-1" id="p-goal"></div></div></div>
+                        </div>
+
+                        <h6 class="mt-3">💬 建议话术</h6>
+                        <div class="alert alert-primary mb-3" id="p-script" style="white-space:pre-wrap;">-</div>
+
+                        <div class="alert alert-warning mb-0" id="p-risk"><strong>⚠️ 风险提示：</strong><span></span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-signpost-split"></i> 客户旅程</div>
+                    <div class="card-body">
+                        <div id="journey" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="empty" class="text-center text-muted py-5">
+                <div style="font-size:4rem;">📅</div>
+                <p>选择客户阶段，AI 给你排好接下来的动作</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 从 URL 参数预填（客户库跳转来）
+const params = new URLSearchParams(location.search);
+if (params.get('stage')) document.getElementById('status').value = params.get('stage');
+if (params.get('name')) document.getElementById('customer').value = params.get('name');
+
+document.getElementById('btn-go').onclick = async () => {
+    const body = {
+        status: document.getElementById('status').value,
+        customer: document.getElementById('customer').value,
+        last_talk: document.getElementById('last_talk').value,
+    };
+    const btn = document.getElementById('btn-go');
+    btn.disabled = true; btn.innerHTML = '<span class="loading-spinner"></span> 生成中…';
+    try {
+        const r = await fetch('/api/followup', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)}).then(r => r.json());
+        document.getElementById('empty').classList.add('d-none');
+        document.getElementById('result').classList.remove('d-none');
+        const d = r.data || {};
+        document.getElementById('r-stage').textContent = d.stage || body.status;
+        const tag = document.getElementById('r-source');
+        tag.className = 'source-tag ' + r.source;
+        tag.textContent = r.source === 'real' ? '真实 AI' : 'Mock';
+        const p = d.plan || {};
+        document.getElementById('p-action').textContent = p.action || '-';
+        document.getElementById('p-timing').textContent = p.timing || '-';
+        document.getElementById('p-channel').textContent = p.channel || '-';
+        document.getElementById('p-goal').textContent = p.goal || '-';
+        document.getElementById('p-script').textContent = p.script || '（本次未生成话术）';
+        document.querySelector('#p-risk span').textContent = d.risk || '暂无';
+
+        const journey = d.journey || ['初次接触', '需求确认', '方案报价', '决策等待', '已成交'];
+        document.getElementById('journey').innerHTML = journey.map(s =>
+            `<span class="badge ${s === d.stage ? 'bg-primary' : 'bg-light text-dark'} p-2">${s}</span>`
+        ).join(' <i class="bi bi-arrow-right"></i> ').replace(/> /g, '> ');
+    } catch (e) { alert('失败：' + e); }
+    btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-right-circle"></i> 生成跟进计划';
+};
+</script>
+{% endblock %}

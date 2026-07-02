@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}客户背景速查{% endblock %}
+{% block content %}
+<div class="module-header">
+    <div class="container">
+        <h2><i class="bi bi-search"></i> 客户背景速查</h2>
+        <p class="mb-0 opacity-75">输入公司名，3 分钟拿到全景画像 · AI 会自动检索你的私有素材库</p>
+    </div>
+</div>
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🎯 输入调研需求</h5>
+                    <div class="mb-3">
+                        <label class="form-label">公司名称 *</label>
+                        <input type="text" class="form-control" id="company" placeholder="如：某某科技有限公司">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">补充信息（可选）</label>
+                        <textarea class="form-control" id="context" rows="4" placeholder="行业、规模、你已知的信息、想重点了解的方向..."></textarea>
+                    </div>
+                    <button class="btn btn-primary w-100" id="btn-go"><i class="bi bi-lightning-charge"></i> 开始调研</button>
+
+                    <div class="tips-box mt-3 small">
+                        <strong>💡 使用提示</strong>
+                        <ul class="mb-0 mt-1 ps-3">
+                            <li>公司名越具体越好（含"股份"、"有限"等后缀）</li>
+                            <li>补充"我想切入哪个部门"，AI 会针对性给切入策略</li>
+                            <li>提前在素材库上传相关行业案例，命中率更高</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div id="result-panel" class="d-none">
+                <div class="card result-card mb-3">
+                    <div class="card-body">
+                        <h5 class="mb-3">
+                            <i class="bi bi-file-earmark-text"></i> <span id="r-name"></span>
+                            <span class="source-tag" id="r-source"></span>
+                        </h5>
+                        <p class="text-muted" id="r-basic"></p>
+
+                        <hr>
+                        <h6>📰 近期动态</h6>
+                        <ul id="r-news"></ul>
+
+                        <h6 class="mt-3">👥 关键联系人</h6>
+                        <div id="r-contacts" class="d-flex flex-wrap gap-2"></div>
+
+                        <h6 class="mt-3">🔗 决策链路</h6>
+                        <p id="r-chain" class="mb-3 badge bg-light text-dark p-2"></p>
+
+                        <h6>😩 潜在痛点</h6>
+                        <ul id="r-pains"></ul>
+
+                        <h6 class="mt-3">🚀 切入策略</h6>
+                        <div class="alert alert-info mb-0" id="r-reco"></div>
+                    </div>
+                </div>
+
+                <div class="card" id="kb-panel">
+                    <div class="card-header"><i class="bi bi-folder"></i> 命中的私有素材</div>
+                    <div class="card-body" id="kb-hits"></div>
+                </div>
+            </div>
+            <div id="empty" class="text-center text-muted py-5">
+                <div style="font-size:4rem;">🔍</div>
+                <p>输入公司名后，点击左侧按钮开始</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('btn-go').onclick = async () => {
+    const company = document.getElementById('company').value.trim();
+    if (!company) { alert('请填公司名'); return; }
+    const context = document.getElementById('context').value.trim();
+    const btn = document.getElementById('btn-go');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> AI 正在调研…';
+
+    try {
+        const r = await fetch('/api/customer-research', {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({company, context}),
+        }).then(r => r.json());
+
+        document.getElementById('empty').classList.add('d-none');
+        document.getElementById('result-panel').classList.remove('d-none');
+
+        const d = r.data || {};
+        document.getElementById('r-name').textContent = d.company_name || company;
+        const tag = document.getElementById('r-source');
+        tag.className = 'source-tag ' + r.source;
+        tag.textContent = r.source === 'real' ? '真实 AI' : 'Mock';
+
+        document.getElementById('r-basic').textContent = d.basic_info || '（AI 未返回基础信息）';
+        document.getElementById('r-news').innerHTML = (d.recent_news || []).map(n => `<li>${n}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-contacts').innerHTML = (d.key_contacts || []).map(c => `<span class="badge bg-primary p-2">${c.name || ''} · ${c.position || ''}</span>`).join('') || '<span class="text-muted">-</span>';
+        document.getElementById('r-chain').textContent = d.decision_chain || '-';
+        document.getElementById('r-pains').innerHTML = (d.pain_points || []).map(p => `<li>${p}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-reco').textContent = d.recommendation || '-';
+
+        const kb = document.getElementById('kb-hits');
+        if (r.kb_hits && r.kb_hits.length) {
+            kb.innerHTML = r.kb_hits.map(h => `<div class="border rounded p-2 mb-2"><strong>${h.filename}</strong> <span class="badge bg-info">${h.score}</span><div class="small text-muted mt-1">${h.snippet.substring(0,200)}…</div></div>`).join('');
+        } else {
+            kb.innerHTML = '<small class="text-muted">本次调研未命中私有素材（可以到<a href="/library">素材库</a>上传相关资料）</small>';
+        }
+    } catch (e) { alert('调研失败：' + e); }
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lightning-charge"></i> 开始调研';
+};
+</script>
+{% endblock %}
