@@ -5,11 +5,17 @@ AI 销售助理 - EdgeOne Makers Serverless 入口文件
 下面的 Flask 实例处理，因此 Flask 内部路由定义（/ , /api/xxx 等）无需
 改成带前缀的写法。
 
-本文件内容与仓库根目录 app.py 的业务逻辑完全一致，仅两点区别：
+本文件内容与仓库根目录 app.py 的业务逻辑完全一致，主要区别：
 1. import 的 knowledge_base 换成同目录下的 /tmp 版本（见 knowledge_base.py）
 2. 去掉了 if __name__ == '__main__' 的常驻进程启动代码
    （Serverless 模式下由 EdgeOne 运行时直接调用 `app` 这个 WSGI 实例，
    不需要也不应该手动 app.run()）
+3. 【重要】模板不再从磁盘 templates/ 目录加载，而是从 templates_data.py
+   内嵌的字典加载（DictLoader）。原因：实测发现 EdgeOne 的 Python 云函数
+   构建器只打包 .py 文件及其 import 到的模块，不保证把 templates/ 这种
+   非 .py 静态资源一起带上线上环境，导致 jinja2.exceptions.TemplateNotFound。
+   把模板内容内嵌进 .py 源码后，构建器一定会带上，从根本上摆脱对外部
+   文件系统结构的依赖。
 
 北极星-炼术师 队伍作品（腾讯 AI 黑客松 - 方向三·营销）
 """
@@ -18,13 +24,17 @@ import json
 import time
 from flask import Flask, render_template, request, jsonify, send_from_directory, abort
 from werkzeug.utils import secure_filename
+from jinja2 import DictLoader
 
 import llm_client
 import knowledge_base as kb
+from templates_data import TEMPLATES
 
 app = Flask(__name__)
 app.secret_key = 'polaris-alchemist-sales-2024'
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20MB
+# 用内嵌字典模板替代磁盘 templates/ 目录，避免云函数构建器丢弃非 .py 静态资源
+app.jinja_loader = DictLoader(TEMPLATES)
 
 ALLOWED_EXT = {'txt', 'md', 'pdf', 'docx', 'doc', 'csv', 'json', 'log'}
 
