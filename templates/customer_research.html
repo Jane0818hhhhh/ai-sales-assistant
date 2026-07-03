@@ -58,7 +58,7 @@
                         <ul id="r-pains"></ul>
 
                         <h6 class="mt-3">🚀 切入策略</h6>
-                        <div class="alert alert-info mb-0" id="r-reco"></div>
+                        <div class="alert alert-info mb-0" id="r-reco" style="white-space:pre-wrap;"></div>
                     </div>
                 </div>
 
@@ -99,12 +99,15 @@ document.getElementById('btn-go').onclick = async () => {
         tag.className = 'source-tag ' + r.source;
         tag.textContent = r.source === 'real' ? '真实 AI' : 'Mock';
 
-        document.getElementById('r-basic').textContent = d.basic_info || '（AI 未返回基础信息）';
-        document.getElementById('r-news').innerHTML = (d.recent_news || []).map(n => `<li>${n}</li>`).join('') || '<li class="text-muted">-</li>';
-        document.getElementById('r-contacts').innerHTML = (d.key_contacts || []).map(c => `<span class="badge bg-primary p-2">${c.name || ''} · ${c.position || ''}</span>`).join('') || '<span class="text-muted">-</span>';
-        document.getElementById('r-chain').textContent = d.decision_chain || '-';
-        document.getElementById('r-pains').innerHTML = (d.pain_points || []).map(p => `<li>${p}</li>`).join('') || '<li class="text-muted">-</li>';
-        document.getElementById('r-reco').textContent = d.recommendation || '-';
+        document.getElementById('r-basic').textContent = safeText(d.basic_info) || '（AI 未返回基础信息）';
+        document.getElementById('r-news').innerHTML = (d.recent_news || []).map(n => `<li>${safeText(n)}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-contacts').innerHTML = (d.key_contacts || []).map(c => {
+            if (typeof c === 'string') return `<span class="badge bg-primary p-2">${c}</span>`;
+            return `<span class="badge bg-primary p-2">${safeText(c.name) || ''} · ${safeText(c.position) || ''}</span>`;
+        }).join('') || '<span class="text-muted">-</span>';
+        document.getElementById('r-chain').textContent = safeText(d.decision_chain) || '-';
+        document.getElementById('r-pains').innerHTML = (d.pain_points || []).map(p => `<li>${safeText(p)}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-reco').textContent = safeSteps(d.recommendation) || '-';
 
         const kb = document.getElementById('kb-hits');
         if (r.kb_hits && r.kb_hits.length) {

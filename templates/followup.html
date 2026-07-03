@@ -79,22 +79,23 @@ document.getElementById('btn-go').onclick = async () => {
         document.getElementById('empty').classList.add('d-none');
         document.getElementById('result').classList.remove('d-none');
         const d = r.data || {};
-        document.getElementById('r-stage').textContent = d.stage || body.status;
+        document.getElementById('r-stage').textContent = safeText(d.stage) || body.status;
         const tag = document.getElementById('r-source');
         tag.className = 'source-tag ' + r.source;
         tag.textContent = r.source === 'real' ? '真实 AI' : 'Mock';
         const p = d.plan || {};
-        document.getElementById('p-action').textContent = p.action || '-';
-        document.getElementById('p-timing').textContent = p.timing || '-';
-        document.getElementById('p-channel').textContent = p.channel || '-';
-        document.getElementById('p-goal').textContent = p.goal || '-';
-        document.getElementById('p-script').textContent = p.script || '（本次未生成话术）';
-        document.querySelector('#p-risk span').textContent = d.risk || '暂无';
+        document.getElementById('p-action').textContent = safeText(p.action) || '-';
+        document.getElementById('p-timing').textContent = safeText(p.timing) || '-';
+        document.getElementById('p-channel').textContent = safeText(p.channel) || '-';
+        document.getElementById('p-goal').textContent = safeText(p.goal) || '-';
+        document.getElementById('p-script').textContent = safeText(p.script) || '（本次未生成话术）';
+        document.querySelector('#p-risk span').textContent = safeText(d.risk) || '暂无';
 
         const journey = d.journey || ['初次接触', '需求确认', '方案报价', '决策等待', '已成交'];
-        document.getElementById('journey').innerHTML = journey.map(s =>
-            `<span class="badge ${s === d.stage ? 'bg-primary' : 'bg-light text-dark'} p-2">${s}</span>`
-        ).join(' <i class="bi bi-arrow-right"></i> ').replace(/> /g, '> ');
+        document.getElementById('journey').innerHTML = journey.map(s => {
+            const label = safeText(s);
+            return `<span class="badge ${label === safeText(d.stage) ? 'bg-primary' : 'bg-light text-dark'} p-2">${label}</span>`;
+        }).join(' <i class="bi bi-arrow-right"></i> ').replace(/> /g, '> ');
     } catch (e) { alert('失败：' + e); }
     btn.disabled = false; btn.innerHTML = '<i class="bi bi-arrow-right-circle"></i> 生成跟进计划';
 };

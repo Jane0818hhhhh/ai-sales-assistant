@@ -196,6 +196,23 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // 全局兜底：把 AI 返回的任意类型（字符串/数字/数组/对象）安全转成可读文本，
+        // 避免 AI 偏离约定的字段类型时前端出现 [object Object] 乱码。
+        function safeText(v, sep) {
+            sep = sep || '；';
+            if (v === null || v === undefined) return '';
+            if (typeof v === 'string') return v;
+            if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+            if (Array.isArray(v)) return v.map(x => safeText(x, sep)).filter(Boolean).join(sep);
+            if (typeof v === 'object') return Object.values(v).map(x => safeText(x, sep)).filter(Boolean).join(' ');
+            return String(v);
+        }
+        // 专用于"分步骤"类字段（如切入策略）：数组会编号展示，字符串原样返回
+        function safeSteps(v) {
+            if (Array.isArray(v)) return v.map((item, i) => `${i + 1}. ${safeText(item)}`).join('\n');
+            return safeText(v);
+        }
+
         // 全局：拉取 LLM 状态
         fetch('/api/system/info').then(r => r.json()).then(d => {
             const b = document.getElementById('llm-badge');

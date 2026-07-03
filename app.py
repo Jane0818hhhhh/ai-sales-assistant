@@ -139,7 +139,16 @@ def api_research():
     kb_context = '\n'.join([f"- {h['filename']}: {h['snippet'][:200]}" for h in hits])
 
     system = '你是一位资深 B2B 销售顾问，擅长客户背景调研。请基于用户提供的信息与内部知识库片段，输出结构化 JSON。'
-    user = f"""请调研以下客户，输出 JSON（字段：company_name, basic_info, recent_news[], key_contacts[{{name,position}}], decision_chain, pain_points[], recommendation）：
+    user = f"""请调研以下客户，输出 JSON，字段类型要求严格如下：
+{{
+  "company_name": "字符串，公司名称",
+  "basic_info": "字符串（不是对象/数组），一段连续文字描述公司基本情况",
+  "recent_news": ["字符串数组，每个元素是一条动态的完整描述，不要嵌套对象"],
+  "key_contacts": [{{"name": "字符串，姓名", "position": "字符串，职位"}}],
+  "decision_chain": "字符串（不是数组），一段话描述决策链路",
+  "pain_points": ["字符串数组，每个元素是一条痛点描述"],
+  "recommendation": "字符串（不是数组/对象！），把 3 步切入策略写成一段连续文字，可用「第一步...第二步...第三步...」这种自然语言衔接，禁止返回数组或对象"
+}}
 
 公司名：{company}
 补充信息：{context or '无'}
@@ -150,7 +159,7 @@ def api_research():
 要求：
 1. 严格返回可解析 JSON，不要 markdown 代码块。
 2. 每项内容具体、可执行，避免空话套话。
-3. recommendation 给出 3 步切入策略。"""
+3. 再次强调：basic_info、decision_chain、recommendation 三个字段必须是字符串类型，不能是数组或对象。"""
 
     r = llm_client.chat(system, user, mock_fn=lambda: mock_research(company))
     parsed = try_parse_json(r['content'])
@@ -198,8 +207,15 @@ def api_objection():
 
 背景：{context or '无'}
 
-请输出 JSON（字段：type 异议类型, strategy 应对策略, response_framework[] 4 步框架, suggested_script 具体话术, similar_cases 同行业成功案例）。
-要求：话术要口语化、有温度、可直接说出口。仅返回 JSON。"""
+请输出 JSON，字段类型要求：
+{{
+  "type": "字符串，异议类型",
+  "strategy": "字符串（不是数组/对象），一句话核心应对策略",
+  "response_framework": ["字符串数组，4 步框架的每一步用一个短语描述"],
+  "suggested_script": "字符串（不是数组/对象），具体话术全文",
+  "similar_cases": "字符串（不是数组/对象），一段同行业成功案例描述"
+}}
+要求：话术要口语化、有温度、可直接说出口。仅返回 JSON，上述字段不要出现嵌套对象或数组类型错误。"""
 
     r = llm_client.chat(system, user, mock_fn=lambda: mock_objection(objection))
     parsed = try_parse_json(r['content'])
@@ -219,7 +235,14 @@ def api_followup():
 客户信息：{customer or '未提供'}
 上次沟通记录：{last_talk or '无'}
 
-输出 JSON（字段：stage, plan{{action, timing, channel, goal, script 一段跟进话术}}, journey[] 全阶段, risk 提示当前阶段最大风险）。仅返回 JSON。"""
+输出 JSON，字段类型要求：
+{{
+  "stage": "字符串，当前阶段名",
+  "plan": {{"action": "字符串", "timing": "字符串", "channel": "字符串", "goal": "字符串", "script": "字符串（不是数组/对象），一段完整跟进话术"}},
+  "journey": ["字符串数组，全部阶段名称，按顺序"],
+  "risk": "字符串（不是数组/对象），一句话说明当前阶段最大风险"
+}}
+仅返回 JSON，plan 内部各字段与 risk 都必须是字符串，不能是数组或嵌套对象。"""
 
     r = llm_client.chat(system, user, mock_fn=lambda: mock_followup(status))
     parsed = try_parse_json(r['content'])
@@ -243,14 +266,24 @@ def api_review():
         return jsonify({'success': False, 'error': '请提供对话记录或选择素材库文件'})
 
     system = '你是销售复盘专家，能从对话中挖出机会点与改进项。'
-    user = f"""复盘以下销售对话记录，输出 JSON（字段：intent 客户意向度[高/中/低], pain_points[] 挖到的痛点, objections[] 客户异议, next_steps[] 后续动作, win_prob 成交概率%, missed[] 错失机会, improvements[] 改进建议, key_moments[] 关键节点带引用原文）。
+    user = f"""复盘以下销售对话记录，输出 JSON，字段类型要求：
+{{
+  "intent": "字符串，客户意向度：高/中/低",
+  "pain_points": ["字符串数组，挖到的痛点"],
+  "objections": ["字符串数组，客户异议"],
+  "next_steps": ["字符串数组，后续动作"],
+  "win_prob": "字符串，成交概率，如 65%",
+  "missed": ["字符串数组，错失机会"],
+  "improvements": ["字符串数组，改进建议"],
+  "key_moments": ["字符串数组，每个元素是一段带引用原文的关键节点描述"]
+}}
 
 对话记录：
 \"\"\"
 {transcript[:6000]}
 \"\"\"
 
-仅返回 JSON。"""
+仅返回 JSON，所有数组元素必须是字符串，不能是嵌套对象。"""
 
     r = llm_client.chat(system, user, mock_fn=mock_review, max_tokens=2000)
     parsed = try_parse_json(r['content'])

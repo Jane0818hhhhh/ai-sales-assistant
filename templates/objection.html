@@ -71,14 +71,14 @@ document.getElementById('btn-go').onclick = async () => {
         document.getElementById('empty').classList.add('d-none');
         document.getElementById('result').classList.remove('d-none');
         const d = r.data || {};
-        document.getElementById('r-type').textContent = d.type || '异议';
+        document.getElementById('r-type').textContent = safeText(d.type) || '异议';
         const tag = document.getElementById('r-source');
         tag.className = 'source-tag ' + r.source;
         tag.textContent = r.source === 'real' ? '真实 AI' : 'Mock';
-        document.getElementById('r-strategy').textContent = d.strategy || '-';
-        document.getElementById('r-framework').innerHTML = (d.response_framework || []).map(x => `<li>${x}</li>`).join('') || '<li class="text-muted">-</li>';
-        document.getElementById('r-script').textContent = d.suggested_script || r.raw;
-        document.getElementById('r-cases').textContent = d.similar_cases || '-';
+        document.getElementById('r-strategy').textContent = safeText(d.strategy) || '-';
+        document.getElementById('r-framework').innerHTML = (d.response_framework || []).map(x => `<li>${safeText(x)}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-script').textContent = safeText(d.suggested_script) || r.raw;
+        document.getElementById('r-cases').textContent = safeText(d.similar_cases) || '-';
     } catch (e) { alert('失败：' + e); }
     btn.disabled = false; btn.innerHTML = '<i class="bi bi-lightbulb"></i> 生成应对策略';
 };

@@ -116,14 +116,14 @@ document.getElementById('btn-go').onclick = async () => {
         const tag = document.getElementById('r-source');
         tag.className = 'source-tag ' + r.source;
         tag.textContent = r.source === 'real' ? '真实 AI' : 'Mock';
-        document.getElementById('r-intent').textContent = d.intent || '-';
-        document.getElementById('r-prob').textContent = d.win_prob || '-';
-        document.getElementById('r-pains').innerHTML = (d.pain_points || []).map(x => `<li>${x}</li>`).join('') || '<li class="text-muted">-</li>';
-        document.getElementById('r-obj').innerHTML = (d.objections || []).map(x => `<li>${x}</li>`).join('') || '<li class="text-muted">-</li>';
-        document.getElementById('r-next').innerHTML = (d.next_steps || []).map(x => `<li>${x}</li>`).join('') || '<li class="text-muted">-</li>';
-        document.getElementById('r-missed').innerHTML = (d.missed || []).map(x => `<li>${x}</li>`).join('') || '<li class="text-muted">-</li>';
-        document.getElementById('r-imp').innerHTML = (d.improvements || []).map(x => `• ${x}`).join('<br>') || '-';
-        document.getElementById('r-key').innerHTML = (d.key_moments || []).map(x => `<div class="border-start border-primary ps-2 mb-2">${x}</div>`).join('') || '<span class="text-muted">-</span>';
+        document.getElementById('r-intent').textContent = safeText(d.intent) || '-';
+        document.getElementById('r-prob').textContent = safeText(d.win_prob) || '-';
+        document.getElementById('r-pains').innerHTML = (d.pain_points || []).map(x => `<li>${safeText(x)}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-obj').innerHTML = (d.objections || []).map(x => `<li>${safeText(x)}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-next').innerHTML = (d.next_steps || []).map(x => `<li>${safeText(x)}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-missed').innerHTML = (d.missed || []).map(x => `<li>${safeText(x)}</li>`).join('') || '<li class="text-muted">-</li>';
+        document.getElementById('r-imp').innerHTML = (d.improvements || []).map(x => `• ${safeText(x)}`).join('<br>') || '-';
+        document.getElementById('r-key').innerHTML = (d.key_moments || []).map(x => `<div class="border-start border-primary ps-2 mb-2">${safeText(x)}</div>`).join('') || '<span class="text-muted">-</span>';
     } catch (e) { alert('失败：' + e); }
     btn.disabled = false; btn.innerHTML = '<i class="bi bi-graph-up-arrow"></i> 开始复盘';
 };
